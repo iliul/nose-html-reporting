@@ -2,7 +2,7 @@ import unittest
 from nose.exc import SkipTest
 
 
-class MainTestCase(unittest.TestCase):
+class TestMainCase(unittest.TestCase):
     def test_a(self):
         self.assertTrue(1)
 
@@ -10,7 +10,7 @@ class MainTestCase(unittest.TestCase):
         self.assertTrue(0, "Some details")
 
 
-class SecondTestCase(unittest.TestCase):
+class TestSecondCase(unittest.TestCase):
     def test_a(self):
         self.assertTrue(1)
 
@@ -35,7 +35,7 @@ def test_1():
     assert False
 
 
-class FailedSetupTestCase(unittest.TestCase):
+class TestFailedSetupCase(unittest.TestCase):
     def setUp(self):
         print("Hello, world!")
         raise Exception("bad")

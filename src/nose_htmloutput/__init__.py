@@ -88,12 +88,20 @@ class HtmlOutput(Plugin):
         """Sets additional command line options."""
         Plugin.options(self, parser, env)
         parser.add_option(
-            '--html-file', action='store',
+            '--html-report', action='store',
             dest='html_file', metavar="FILE",
             default=env.get('NOSE_HTML_FILE', 'nosetests.html'),
             help="Path to html file to store the report in. "
                  "Default is nosetests.html in the working directory "
                  "[NOSE_HTML_FILE]")
+        parser.add_option(
+            '--html-report-template', action='store',
+            dest='html_template', metavar="FILE",
+            default=env.get('NOSE_HTML_TEMPLATE_FILE',
+                            os.path.join(os.path.dirname(__file__), "templates", "report.html")),
+            help="Path to html template file in with jinja2 format."
+                 "Default is report.html in the lib sources"
+                 "[NOSE_HTML_TEMPLATE_FILE]")
 
     def configure(self, options, config):
         """Configures the xunit plugin."""
@@ -101,13 +109,14 @@ class HtmlOutput(Plugin):
         self.config = config
         if self.enabled:
             self.jinja = Environment(
-                loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')),
+                loader=FileSystemLoader(os.path.dirname(options.html_template)),
                 trim_blocks=True,
                 lstrip_blocks=True
             )
             self.stats = {'errors': 0, 'failures': 0, 'passes': 0, 'skipped': 0}
             self.report_data = defaultdict(Group)
             self.report_file = codecs.open(options.html_file, 'w', self.encoding, 'replace')
+            self.report_template_filename = options.html_template
 
     def report(self, stream):
         """Writes an Xunit-formatted XML file
@@ -118,7 +127,7 @@ class HtmlOutput(Plugin):
         self.stats['total'] = sum(self.stats.values())
         for group in self.report_data.values():
             group.stats['total'] = sum(group.stats.values())
-        self.report_file.write(self.jinja.get_template('report.html').render(
+        self.report_file.write(self.jinja.get_template(os.path.basename(self.report_template_filename)).render(
             report=self.report_data,
             stats=self.stats,
         ))
