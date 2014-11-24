@@ -74,7 +74,7 @@ class Group(object):
         self.tests = []
 
 
-class HtmlOutput(Plugin):
+class HtmlReport(Plugin):
     """
     Output test results as pretty html.
     """

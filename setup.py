@@ -18,14 +18,15 @@ def read(*names, **kwargs):
     ).read()
 
 setup(
-    name="nose-htmloutput",
+    name="nose-htmlreport",
     version="0.5.0",
     license="BSD",
-    description="Nose plugin that generates a nice html test report.",
+    description="Nose plugin that generates a nice html test report with ability of using template from any folder. "
+                "Based on jinja2 templates",
     long_description="%s\n%s" % (read("README.rst"), re.sub(":obj:`~?(.*?)`", r"``\1``", read("CHANGELOG.rst"))),
-    author="Ionel Cristian Mărieș",
-    author_email="contact@ionelmc.ro",
-    url="https://github.com/ionelmc/nose-htmloutput",
+    author="Ivan Lysenko",
+    author_email="lysenko_i@mail.ru",
+    url="https://github.com/lysenkoivan/nose-htmlreport",
     packages=find_packages("src"),
     package_dir={"": "src"},
     py_modules=[splitext(basename(i))[0] for i in glob.glob("src/*.py")],
@@ -56,9 +57,9 @@ setup(
     ],
     extras_require={
     },
-    entry_points = {
+    entry_points={
         'nose.plugins.0.10': [
-            'html = nose_htmloutput:HtmlOutput'
+            'html = nose_htmlreport:HtmlReport'
         ]
     }
 
