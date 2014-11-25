@@ -18,8 +18,8 @@ def read(*names, **kwargs):
     ).read()
 
 setup(
-    name="nose-htmlreport",
-    version="0.5.0",
+    name="nose_htmlreport",
+    version="0.2.0",
     license="BSD",
     description="Nose plugin that generates a nice html test report with ability of using template from any folder. "
                 "Based on jinja2 templates",

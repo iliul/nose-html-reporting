@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/nose-htmlreport.iml" filepath="$PROJECT_DIR$/.idea/nose-htmlreport.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/nose_htmlreport.iml" filepath="$PROJECT_DIR$/.idea/nose_htmlreport.iml" />
     </modules>
   </component>
 </project>

@@ -1,3 +1,4 @@
+import StringIO
 import re
 import codecs
 import inspect
@@ -9,8 +10,9 @@ from jinja2 import Environment
 from jinja2 import FileSystemLoader
 from nose.exc import SkipTest
 from nose.plugins import Plugin
+import sys
 
-__version__ = '0.5.0'
+__version__ = '0.1.0'
 
 TEST_ID = re.compile(r'^(.*?)(\(.*\))$')
 
@@ -68,6 +70,24 @@ def exc_message(exc_info):
     return result
 
 
+class OutputRedirector(object):
+    """ Wrapper to redirect stdout or stderr """
+    def __init__(self, fp):
+        self.fp = fp
+
+    def write(self, s):
+        self.fp.write(s)
+
+    def writelines(self, lines):
+        self.fp.writelines(lines)
+
+    def flush(self):
+        self.fp.flush()
+
+stdout_redirector = OutputRedirector(sys.stdout)
+stderr_redirector = OutputRedirector(sys.stderr)
+
+
 class Group(object):
     def __init__(self):
         self.stats = {'errors': 0, 'failures': 0, 'passes': 0, 'skipped': 0}
@@ -83,6 +103,45 @@ class HtmlReport(Plugin):
     score = 2000
     encoding = 'UTF-8'
     report_file = None
+
+    stdout0 = None
+    stderr0 = None
+
+    # def __init__(self, verbosity=1):
+    #     super(HtmlReport, self).__init__()
+    #     self.stdout0 = None
+    #     self.stderr0 = None
+    #     self.verbosity = verbosity
+
+    def startTest(self, test):
+        super(HtmlReport, self).startTest(self, test)
+        # just one buffer for both stdout and stderr
+        self.outputBuffer = StringIO.StringIO()
+        stdout_redirector.fp = self.outputBuffer
+        stderr_redirector.fp = self.outputBuffer
+        self.stdout0 = sys.stdout
+        self.stderr0 = sys.stderr
+        sys.stdout = stdout_redirector
+        sys.stderr = stderr_redirector
+
+    def complete_output(self):
+        """
+        Disconnect output redirection and return buffer.
+        Safe to call multiple times.
+        """
+        if self.stdout0:
+            sys.stdout = self.stdout0
+            sys.stderr = self.stderr0
+            self.stdout0 = None
+            self.stderr0 = None
+        return self.outputBuffer.getvalue()
+
+    def stopTest(self, test):
+        # Usually one of addSuccess, addError or addFailure would have been called.
+        # But there are some path in unittest that would bypass this.
+        # We must disconnect stdout in stopTest(), which is guaranteed to be called.
+        super(HtmlReport, self).stopTest(test)
+        self.complete_output()
 
     def options(self, parser, env):
         """Sets additional command line options."""
@@ -144,6 +203,7 @@ class HtmlReport(Plugin):
         group.tests.append({
             'name': name[-1],
             'failed': False,
+            'output': self._format_output(self.complete_output()),
         })
 
     def addError(self, test, err, capt=None):
@@ -172,6 +232,7 @@ class HtmlReport(Plugin):
             'errtype': nice_classname(err[0]),
             'message': exc_message(err),
             'tb': tb,
+            'output': self._format_output(self.complete_output()),
         })
 
     def addFailure(self, test, err, capt=None):
@@ -193,4 +254,11 @@ class HtmlReport(Plugin):
             'errtype': nice_classname(err[0]),
             'message': exc_message(err),
             'tb': tb,
+            'output': self._format_output(self.complete_output()),
         })
+
+    def _format_output(self, o):
+        if isinstance(o, str):
+            return o.decode('latin-1')
+        else:
+            return o
