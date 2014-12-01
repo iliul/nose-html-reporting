@@ -2,4 +2,4 @@
 Authors
 =======
 
-* Ionel Cristian Mărieș - http://blog.ionelmc.ro
+* Ivan Lysenko - http://myqanotes.blogspot.com/

@@ -1,30 +1,8 @@
 ===============================
-nose-htmloutput
+nose-html-reporting
 ===============================
 
-.. image:: http://img.shields.io/travis/ionelmc/nose-htmloutput/master.png
-    :alt: Travis-CI Build Status
-    :target: https://travis-ci.org/ionelmc/nose-htmloutput
-
-.. See: http://www.appveyor.com/docs/status-badges
-
-.. image:: https://ci.appveyor.com/api/projects/status/<security-token>/branch/master
-    :alt: AppVeyor Build Status
-    :target: https://ci.appveyor.com/project/ionelmc/nose-htmloutput
-
-.. image:: http://img.shields.io/coveralls/ionelmc/nose-htmloutput/master.png
-    :alt: Coverage Status
-    :target: https://coveralls.io/r/ionelmc/nose-htmloutput
-
-.. image:: http://img.shields.io/pypi/v/nose-htmloutput.png
-    :alt: PYPI Package
-    :target: https://pypi.python.org/pypi/nose-htmloutput
-
-.. image:: http://img.shields.io/pypi/dm/nose-htmloutput.png
-    :alt: PYPI Package
-    :target: https://pypi.python.org/pypi/nose-htmloutput
-
-Nose plugin that generates a nice html test report.
+Nose plugin that generates a nice html test report with ability of using template based on jinja2 templates from any folder.
 
 * Free software: BSD license
 
@@ -33,7 +11,7 @@ Installation
 
 ::
 
-    pip install nose-htmloutput
+    pip install nose-html-reporting
 
 Usage
 =====
@@ -42,6 +20,8 @@ Usage
                         pretty html.  [NOSE_WITH_HTML]
   --html-file=FILE      Path to html file to store the report in. Default is
                         nosetests.html in the working directory
+  --html-report-template=FILE      Path to jinja2 file to get the report template from. Default is
+                        templates/report.html from the package working directory
 
 Development
 ===========
@@ -52,5 +32,8 @@ To run the all tests run::
 
 Example
 =======
+To execute tests::
 
-.. image:: https://raw.githubusercontent.com/ionelmc/nose-htmloutput/master/docs/sample.png
+    nosetests tests/test_sample.py --with-html --html-report=nose_report2_test.html --html-report-template=src/nose_htmlreport/templates/report2.jinja2
+
+.. image:: https://raw.githubusercontent.com/lysenkoivan/nose-html-reporting/master/docs/sample.png

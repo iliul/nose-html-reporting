@@ -104,17 +104,18 @@ class HtmlReport(Plugin):
     encoding = 'UTF-8'
     report_file = None
 
-    stdout0 = None
-    stderr0 = None
+    # stdout0 = None
+    # stderr0 = None
+    # outputBuffer = None
 
-    # def __init__(self, verbosity=1):
-    #     super(HtmlReport, self).__init__()
-    #     self.stdout0 = None
-    #     self.stderr0 = None
-    #     self.verbosity = verbosity
+    def __init__(self, verbosity=1):
+        super(HtmlReport, self).__init__()
+        self.stdout0 = None
+        self.stderr0 = None
+        self.outputBuffer = StringIO.StringIO()
+        self.verbosity = verbosity
 
     def startTest(self, test):
-        super(HtmlReport, self).startTest(self, test)
         # just one buffer for both stdout and stderr
         self.outputBuffer = StringIO.StringIO()
         stdout_redirector.fp = self.outputBuffer
@@ -140,7 +141,6 @@ class HtmlReport(Plugin):
         # Usually one of addSuccess, addError or addFailure would have been called.
         # But there are some path in unittest that would bypass this.
         # We must disconnect stdout in stopTest(), which is guaranteed to be called.
-        super(HtmlReport, self).stopTest(test)
         self.complete_output()
 
     def options(self, parser, env):
@@ -204,6 +204,7 @@ class HtmlReport(Plugin):
             'name': name[-1],
             'failed': False,
             'output': self._format_output(self.complete_output()),
+            'shortDescription': test.shortDescription(),
         })
 
     def addError(self, test, err, capt=None):
@@ -233,6 +234,7 @@ class HtmlReport(Plugin):
             'message': exc_message(err),
             'tb': tb,
             'output': self._format_output(self.complete_output()),
+            'shortDescription': test.shortDescription(),
         })
 
     def addFailure(self, test, err, capt=None):
@@ -255,6 +257,7 @@ class HtmlReport(Plugin):
             'message': exc_message(err),
             'tb': tb,
             'output': self._format_output(self.complete_output()),
+            'shortDescription': test.shortDescription(),
         })
 
     def _format_output(self, o):

@@ -8,7 +8,7 @@ little bit helps, and credit will always be given.
 Bug reports
 ===========
 
-When `reporting a bug <https://github.com/ionelmc/nose-htmloutput/issues>`_ please include:
+When `reporting a bug <https://github.com/lysenkoivan/nose-html-reporting/issues>`_ please include:
 
     * Your operating system name and version.
     * Any details about your local setup that might be helpful in troubleshooting.
@@ -17,14 +17,14 @@ When `reporting a bug <https://github.com/ionelmc/nose-htmloutput/issues>`_ plea
 Documentation improvements
 ==========================
 
-nose-htmloutput could always use more documentation, whether as part of the
-official nose-htmloutput docs, in docstrings, or even on the web in blog posts,
+nose-html-reporting could always use more documentation, whether as part of the
+official nose-html-reporting docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Feature requests and feedback
 =============================
 
-The best way to send feedback is to file an issue at https://github.com/ionelmc/nose-htmloutput/issues.
+The best way to send feedback is to file an issue at https://github.com/lysenkoivan/nose-html-reporting/issues.
 
 If you are proposing a feature:
 
@@ -35,12 +35,12 @@ If you are proposing a feature:
 Development
 ===========
 
-To set up `nose-htmloutput` for local development:
+To set up `nose-html-reporting` for local development:
 
-1. `Fork nose-htmloutput on GitHub <https://github.com/ionelmc/nose-htmloutput/fork>`_.
+1. `Fork nose-html-reporting on GitHub <https://github.com/lysenkoivan/nose-html-reporting/fork>`_.
 2. Clone your fork locally::
 
-    git clone git@github.com:your_name_here/nose-htmloutput.git
+    git clone git@github.com:your_name_here/nose-html-reporting.git
 
 3. Create a branch for local development::
 
@@ -73,7 +73,7 @@ For merging, you should:
 4. Add yourself to ``AUTHORS.rst``.
 
 .. [1] If you don't have all the necessary python versions available locally you can rely on Travis - it will 
-       `run the tests <https://travis-ci.org/ionelmc/nose-htmloutput/pull_requests>`_ for each change you add in the pull request.
+       `run the tests <https://travis-ci.org/lysenkoivan/nose-html-reporting/pull_requests>`_ for each change you add in the pull request.
        
        It will be slower though ...
        
