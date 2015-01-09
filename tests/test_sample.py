@@ -10,6 +10,10 @@ class TestMainCase(unittest.TestCase):
     def test_Mb(self):
         self.assertTrue(0, "raising: Some details")
 
+    def test_Mc(self):
+        print "printing: Verify assert 0"
+        self.assertTrue(0, "raising: Some details")
+
 
 class TestSecondCase(unittest.TestCase):
     def test_2a(self):
@@ -17,11 +21,14 @@ class TestSecondCase(unittest.TestCase):
         self.assertTrue(1)
 
     def test_2b(self):
-        print "printing: Verify assertTrue(1)"
-        self.assertTrue(1)
+        print "printing: Verify assertEqual(2, 0)"
+        self.assertEqual(2, 0)
 
 
 def test_a():
+    """
+    Test short description for test_a
+    """
     print "printing: Verify assert 1"
     assert 1
 
@@ -45,5 +52,8 @@ class TestFailedSetupCase(unittest.TestCase):
         raise Exception("raising: bad")
 
     def test_whatever(self):
+        """
+        Verifying test short description and test error on setup fail
+        """
         print "printing: Verify pass"
         pass

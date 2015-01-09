@@ -48,7 +48,7 @@
             font-family: "Lucida Console", "Courier New", Courier, monospace;
             text-align: left;
             font-size: 8pt;
-            width: 500px;
+            width: 600px;
         }
 
         }
@@ -70,6 +70,10 @@
         .result_table td {
             border: 1px solid #777;
             padding: 2px;
+        }
+        .shortDescription {
+            font-style: italic;
+            font-weight: normal;
         }
         #total_row  { font-weight: bold; }
         .passClass  { background-color: #6c6; }
@@ -153,6 +157,7 @@ function html_escape(s) {
     <tr id="header_row">
         <th>Class</th>
         <th>Fail</th>
+        <th>Error</th>
         <th>Skip</th>
         <th>Success</th>
         <th>Total</th>
@@ -161,6 +166,7 @@ function html_escape(s) {
         <tr>
             <td>{{ class }}</td>
             <td>{{ group.stats.failures }}</td>
+            <td>{{ group.stats.errors   }}</td>
             <td>{{ group.stats.skipped  }}</td>
             <td>{{ group.stats.passes   }}</td>
             <td>{{ group.stats.total    }}</td>
@@ -169,6 +175,7 @@ function html_escape(s) {
     <tr>
         <td><strong>Total</strong></td>
         <td>{{ stats.failures }}</td>
+        <td>{{ stats.errors   }}</td>
         <td>{{ stats.skipped  }}</td>
         <td>{{ stats.passes   }}</td>
         <td>{{ stats.total    }}</td>
@@ -221,7 +228,7 @@ function html_escape(s) {
         </colgroup>
         <tr class='testclass {{ class_status.lower() }}Class'>
             <td>{{ class }}</td>
-            <td>{{ group.stats.skipped }}</td>
+            <td>{{ group.stats.total }}</td>
             <td>{{ group.stats.passes }}</td>
             <td>{{ group.stats.failures }}</td>
             <td>{{ group.stats.errors }}</td>
@@ -244,8 +251,12 @@ function html_escape(s) {
         <tr id='{{ class + test.name }}' class='testcase'>
             <td class="{{ test_status.lower() }}Case">
                 {{ test.name }}
+                {% if test.shortDescription %}
+                    <div class="shortDescription">
+                        {{ test.shortDescription }}
+                    </div>
+                {% endif %}
             </td>
-
             <td colspan='5' align='center'>
             <!--css div popup start-->
             <a class="popup_link" onfocus='this.blur();' href="javascript:showTestDetail('div_{{ class + test.name }}')" >
@@ -257,8 +268,9 @@ function html_escape(s) {
                 <a onfocus='this.blur();' onclick="document.getElementById('div_{{ class + test.name }}').style.display = 'none' " >
                    [x]</a>
                 </div>
-                <pre>
-                    {{ test.output or test.message }}
+                <pre>{{ test.output }}
+{{ test.message }}
+{{ test.tb }}
                 </pre>
             </div>
             <!--css div popup end-->
@@ -270,20 +282,20 @@ function html_escape(s) {
     </table>
     <table class='result_table'>
         <colgroup>
-            <col align='left' width="50%" />
-            <col align='right' width="10%"/>
-            <col align='right' width="10%"/>
-            <col align='right' width="10%"/>
-            <col align='right' width="10%"/>
+            <col align='left' width="50%"/>
+            <col align='right' width="10%" id="results_count"/>
+            <col align='right' width="10%" id="results_passed"/>
+            <col align='right' width="10%" id="results_failed"/>
+            <col align='right' width="10%" id="results_errors"/>
             <col align='right' width="10%"/>
         </colgroup>
         <!-- test list end -->
         <tr id='total_row'>
             <td>Total</td>
             <td>{{ stats.total    }}</td>
-            <td>{{ stats.failures }}</td>
-            <td>{{ stats.skipped  }}</td>
             <td>{{ stats.passes   }}</td>
+            <td>{{ stats.failures }}</td>
+            <td>{{ stats.errors   }}</td>
             <td>&nbsp;</td>
         </tr>
     </table>
