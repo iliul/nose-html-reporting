@@ -5,6 +5,7 @@ import inspect
 import os
 import traceback
 from collections import defaultdict
+from datetime import datetime
 
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
@@ -84,8 +85,8 @@ class OutputRedirector(object):
     def flush(self):
         self.fp.flush()
 
-stdout_redirector = OutputRedirector(sys.stdout)
-stderr_redirector = OutputRedirector(sys.stderr)
+    def readall(self):
+        self.fp.readall()
 
 
 class Group(object):
@@ -110,38 +111,67 @@ class HtmlReport(Plugin):
 
     def __init__(self, verbosity=1):
         super(HtmlReport, self).__init__()
-        self.stdout0 = None
-        self.stderr0 = None
-        self.outputBuffer = StringIO.StringIO()
+        self.global_stdout0 = None
+        self.global_stderr0 = None
+        self.test_stdout0 = None
+        self.test_stderr0 = None
+        self.testOutputBuffer = StringIO.StringIO()
+        self.globalOutputBuffer = StringIO.StringIO()
+        self.stdout_redirector = OutputRedirector(sys.stdout)
+        self.stderr_redirector = OutputRedirector(sys.stderr)
+        self.test_stdout_redirector = OutputRedirector(sys.stdout)
+        self.test_stderr_redirector = OutputRedirector(sys.stderr)
+
         self.verbosity = verbosity
 
     def startTest(self, test):
         # just one buffer for both stdout and stderr
-        self.outputBuffer = StringIO.StringIO()
-        stdout_redirector.fp = self.outputBuffer
-        stderr_redirector.fp = self.outputBuffer
-        self.stdout0 = sys.stdout
-        self.stderr0 = sys.stderr
-        sys.stdout = stdout_redirector
-        sys.stderr = stderr_redirector
+        self.testOutputBuffer = StringIO.StringIO()
+        self.test_stdout_redirector.fp = self.testOutputBuffer
+        self.test_stderr_redirector.fp = self.testOutputBuffer
+        self.test_stdout0 = sys.stdout
+        self.test_stderr0 = sys.stderr
+        sys.stdout = self.test_stdout_redirector
+        sys.stderr = self.test_stderr_redirector
 
-    def complete_output(self):
+        self.test_start_time = datetime.now()
+
+    def complete_test_output(self, err_msg='', traceback=''):
         """
         Disconnect output redirection and return buffer.
         Safe to call multiple times.
         """
-        if self.stdout0:
-            sys.stdout = self.stdout0
-            sys.stderr = self.stderr0
-            self.stdout0 = None
-            self.stderr0 = None
-        return self.outputBuffer.getvalue()
+        if self.test_stdout0:
+            sys.stdout = self.test_stdout0
+            sys.stderr = self.test_stderr0
+            self.test_stdout0 = None
+            self.test_stderr0 = None
+        self.globalOutputBuffer.write(self.testOutputBuffer.getvalue())
+        self.globalOutputBuffer.write(err_msg)
+        self.globalOutputBuffer.write(traceback)
+        return self.testOutputBuffer.getvalue()
 
-    def stopTest(self, test):
-        # Usually one of addSuccess, addError or addFailure would have been called.
-        # But there are some path in unittest that would bypass this.
-        # We must disconnect stdout in stopTest(), which is guaranteed to be called.
-        self.complete_output()
+    def begin(self):
+        # just one buffer for both stdout and stderr
+        # self.outputBuffer = StringIO.StringIO()
+        self.stdout_redirector.fp = self.globalOutputBuffer
+        self.stderr_redirector.fp = self.globalOutputBuffer
+        self.global_stdout0 = sys.stdout
+        self.global_stderr0 = sys.stderr
+        sys.stdout = self.stdout_redirector
+        sys.stderr = self.stderr_redirector
+
+    def complete_global_output(self):
+        """
+        Disconnect output redirection and return buffer.
+        Safe to call multiple times.
+        """
+        if self.global_stdout0:
+            sys.stdout = self.global_stdout0
+            sys.stderr = self.global_stderr0
+            self.global_stdout0 = None
+            self.global_stderr0 = None
+        return self.globalOutputBuffer.getvalue()
 
     def options(self, parser, env):
         """Sets additional command line options."""
@@ -157,7 +187,7 @@ class HtmlReport(Plugin):
             '--html-report-template', action='store',
             dest='html_template', metavar="FILE",
             default=env.get('NOSE_HTML_TEMPLATE_FILE',
-                            os.path.join(os.path.dirname(__file__), "templates", "report.html")),
+                            os.path.join(os.path.dirname(__file__), "templates", "report2.jinja2")),
             help="Path to html template file in with jinja2 format."
                  "Default is report.html in the lib sources"
                  "[NOSE_HTML_TEMPLATE_FILE]")
@@ -174,6 +204,9 @@ class HtmlReport(Plugin):
             )
             self.stats = {'errors': 0, 'failures': 0, 'passes': 0, 'skipped': 0}
             self.report_data = defaultdict(Group)
+            htmlfile_dirname = os.path.dirname(options.html_file)
+            if not os.path.exists(htmlfile_dirname):
+                os.makedirs(htmlfile_dirname)
             self.report_file = codecs.open(options.html_file, 'w', self.encoding, 'replace')
             self.report_template_filename = options.html_template
 
@@ -189,6 +222,7 @@ class HtmlReport(Plugin):
         self.report_file.write(self.jinja.get_template(os.path.basename(self.report_template_filename)).render(
             report=self.report_data,
             stats=self.stats,
+            rawoutput=self._format_output(self.complete_global_output())
         ))
         self.report_file.close()
         if self.config.verbosity > 1:
@@ -203,8 +237,9 @@ class HtmlReport(Plugin):
         group.tests.append({
             'name': name[-1],
             'failed': False,
-            'output': self._format_output(self.complete_output()),
+            'output': self._format_output(self.complete_test_output()),
             'shortDescription': test.shortDescription(),
+            'time': str(datetime.now() - self.test_start_time),
         })
 
     def addError(self, test, err, capt=None):
@@ -233,8 +268,9 @@ class HtmlReport(Plugin):
             'errtype': nice_classname(err[0]),
             'message': exc_message(err),
             'tb': tb,
-            'output': self._format_output(self.complete_output()),
+            'output': self._format_output(self.complete_test_output(exc_message(err), tb)),
             'shortDescription': test.shortDescription(),
+            'time': str(datetime.now() - self.test_start_time),
         })
 
     def addFailure(self, test, err, capt=None):
@@ -256,8 +292,9 @@ class HtmlReport(Plugin):
             'errtype': nice_classname(err[0]),
             'message': exc_message(err),
             'tb': tb,
-            'output': self._format_output(self.complete_output()),
+            'output': self._format_output(self.complete_test_output(exc_message(err), tb)),
             'shortDescription': test.shortDescription(),
+            'time': str(datetime.now() - self.test_start_time),
         })
 
     def _format_output(self, o):

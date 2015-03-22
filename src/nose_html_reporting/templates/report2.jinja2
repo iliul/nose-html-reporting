@@ -43,12 +43,12 @@
             left: 0px;
             top: 0px;
             /*border: solid #627173 1px; */
-            padding: 10px;
+            padding: 8px;
             background-color: #E6E6D6;
             font-family: "Lucida Console", "Courier New", Courier, monospace;
             text-align: left;
             font-size: 8pt;
-            width: 600px;
+            width: 570px;
         }
 
         }
@@ -143,6 +143,20 @@ function showTestDetail(div_id){
     }
 }
 
+function togleClass(element, clas){
+        var currentClassValue = element.className || "";
+
+        if (currentClassValue.indexOf(clas) == -1) {
+            currentClassValue += " "+clas;
+        } else {
+            currentClassValue = currentClassValue.replace(clas, "").replace("  ", " ");
+        }
+        element.className = currentClassValue.trim()
+    }
+
+function showRawLog(element){
+        togleClass(element, "popup_window")
+    }
 
 function html_escape(s) {
     s = s.replace(/&/g,'&amp;');
@@ -257,7 +271,8 @@ function html_escape(s) {
                     </div>
                 {% endif %}
             </td>
-            <td colspan='5' align='center'>
+            <td>{{ test.time }}</td>
+            <td colspan='4' align='center'>
             <!--css div popup start-->
             <a class="popup_link" onfocus='this.blur();' href="javascript:showTestDetail('div_{{ class + test.name }}')" >
                 {{ test_status }}
@@ -299,5 +314,10 @@ function html_escape(s) {
             <td>&nbsp;</td>
         </tr>
     </table>
+    <br/>
+    <a href="javascript:void(0)" onclick="showRawLog(document.getElementById('rawoutput'))">Full log raw output</a>
+    <div id='rawoutput' class='popup_window'>
+        <pre>{{ rawoutput }}</pre>
+    </div>
 </body>
 </html>

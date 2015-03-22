@@ -1,5 +1,6 @@
 import unittest
 from nose.exc import SkipTest
+import time
 
 
 class TestMainCase(unittest.TestCase):
@@ -16,6 +17,10 @@ class TestMainCase(unittest.TestCase):
 
 
 class TestSecondCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        print "printing: TestSecondCase.setUpClass entrypoint"
+
     def test_2a(self):
         print "printing: Verify assertTrue(1)"
         self.assertTrue(1)
@@ -47,8 +52,12 @@ def test_1():
 
 
 class TestFailedSetupCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        print "printing: TestFailedSetupCase.setUpClass entrypoint"
+
     def setUp(self):
-        print("printing: Hello, world!")
+        print("printing: setUp entrypoint")
         raise Exception("raising: bad")
 
     def test_whatever(self):
@@ -56,4 +65,5 @@ class TestFailedSetupCase(unittest.TestCase):
         Verifying test short description and test error on setup fail
         """
         print "printing: Verify pass"
+        time.sleep(13)
         pass
