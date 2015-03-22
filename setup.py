@@ -19,7 +19,7 @@ def read(*names, **kwargs):
 
 setup(
     name="nose-html-reporting",
-    version="0.1.2",
+    version="0.2.1",
     license="BSD",
     description="Nose plugin that generates a nice html test report with ability of using template "
                 "based on jinja2 templates from any folder.",
